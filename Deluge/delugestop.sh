@@ -38,12 +38,14 @@ client = DelugeRPCClient('127.0.0.1', port, username, password)
 client.connect()
 
 torrents=client.call('core.get_torrents_status', {}, ['private', 'ratio'])
+torrents_list=[]
+options= {'stop_at_ratio': True , 'stop_ratio': 2.0}
+
 for x, y in torrents.items():
-  private=y[b'private']
-  ratio=y[b'ratio']
-  hash=x.decode('utf-8')
-  if not private and ratio >= 2:
-    client.core.pause_torrent(hash)
+  if not y[b'private']:
+    torrents_list.append(x.decode('utf-8'))
+
+client.core.set_torrent_options(torrents_list,options)
 EOF
 sed -i "s/>pass</$password/g" "$script"
 
