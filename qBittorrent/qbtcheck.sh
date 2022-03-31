@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-croncmd="$HOME/scripts/qbtcheck > $HOME/scripts/qbtcheck.log 2>&1"
+croncmd="$HOME/bin/qbtcheck > $HOME/bin/qbtcheck.log 2>&1"
 cronjob="* * * * * $croncmd"
 
 #Get qBitttorrent Password
@@ -17,14 +17,9 @@ then
   pip3 install -q qbittorrent-api
 fi
 
-if [ ! -d "$HOME/scripts" ]
-then
-  mkdir -p "$HOME"/scripts
-fi
-
 #Create script
 
-script="$HOME"/scripts/qbtcheck
+script="$HOME"/bin/qbtcheck
 
 touch "$script" && chmod +x "$script"
 cat <<'EOF' | tee "$script" >/dev/null
@@ -46,9 +41,14 @@ try:
 except qbittorrentapi.LoginFailed as e:
     print(e)
 
-for i in qbt.torrents_info():
-    if qbt.torrents_trackers(i.hash)[1].msg != "This torrent is private":
-        qbt.torrents_set_share_limits(ratio_limit=2, seeding_time_limit=-1, torrent_hashes=i.hash)
+public_torrents=[]
+all_torrents = qbt.torrents_info()
+
+for torrent in all_torrents:
+    if qbt.torrents_trackers(torrent.hash)[1].msg != "This torrent is private":
+        public_torrents.append(torrent.hash)
+
+qbt.torrents_set_share_limits(ratio_limit=2, seeding_time_limit=-1, torrent_hashes=public_torrents)
 EOF
 sed -i "s/>pass</$password/g" "$script"
 
