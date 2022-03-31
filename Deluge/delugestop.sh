@@ -37,15 +37,15 @@ password = '>pass<'
 client = DelugeRPCClient('127.0.0.1', port, username, password)
 client.connect()
 
-torrents=client.call('core.get_torrents_status', {}, ['private', 'ratio'])
-torrents_list=[]
+public_torrents=[]
+all_torrents=client.call('core.get_torrents_status', {}, ['private', 'ratio'])
 options= {'stop_at_ratio': True , 'stop_ratio': 2.0}
 
-for x, y in torrents.items():
-  if not y[b'private']:
-    torrents_list.append(x.decode('utf-8'))
+for hash, properties in all_torrents.items():
+  if not properties[b'private']:
+    public_torrents.append(hash.decode('utf-8'))
 
-client.core.set_torrent_options(torrents_list,options)
+client.core.set_torrent_options(public_torrents,options)
 EOF
 sed -i "s/>pass</$password/g" "$script"
 
