@@ -5,7 +5,7 @@ set -euo pipefail
 croncmd="$HOME/bin/delugechk > $HOME/bin/delugechk.log 2>&1"
 cronjob="* * * * * $croncmd"
 
-#Get qBitttorrent Password
+#Get Password
 
 read -sp "Password of Deluge client: " password
 echo
