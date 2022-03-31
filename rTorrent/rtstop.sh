@@ -37,6 +37,7 @@ EOF
 ( crontab -l | grep -v -F "$croncmd" || : ; echo "$cronjob" ) | crontab -
 
 #Disable rtcheck
+"$HOME"/bin/rtxmlrpc session.save
 sed -i '/rtcheck/ s/method/#method/g' "$HOME"/.rtorrent.rc && app-rtorrent restart
 
 exit
