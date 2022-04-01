@@ -7,13 +7,12 @@ cronjob="* * * * * $croncmd"
 
 #Get Password
 
-read -sp "Password of Transmission client: " password
+read -rsp "Password of Transmission client: " password
 echo
 
 #Perform Checks
 
-if [[ -z $(pip3 list | grep 'transmission-rpc') ]]
-then
+if ! pip3 list | grep -q 'transmission-rpc'; then
   pip3 install -q transmission-rpc
 fi
 
@@ -49,6 +48,9 @@ sed -i "s/>pass</$password/g" "$script"
 
 #Create Crontab
 
-( crontab -l | grep -v -F "$croncmd" || : ; echo "$cronjob" ) | crontab -
+(
+  crontab -l | grep -v -F "$croncmd" || :
+  echo "$cronjob"
+) | crontab -
 
 exit
